@@ -30,11 +30,6 @@ public class auto extends LinearOpMode {
 
         ElapsedTime et = new ElapsedTime();
 
-
-
-
-//        motorA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        myArm = new Arm(hardwareMap, telemetry);
         telemetry.addData("Encoder PositionA", motorA.getCurrentPosition());
 
         waitForStart();
@@ -55,10 +50,18 @@ public class auto extends LinearOpMode {
         motorB.setTargetPosition(100);
         motorB.setPower(.5);
         et.reset();
+        
+        //Auto: move forward, turn, move forward
         while (opModeIsActive()) {
-            mecanum.drive(.2, .2, 0);
-            if (et.seconds() > 3) {
-                break;
+            mecanum.drive(.8, 0, 0);
+            if (et.seconds() > 2) {
+                mecanum.drive(0, .8, 0);
+                if (et.seconds() > 5) {
+                    mecanum.drive(.8, 0, 0);
+                    if (et.seconds() > 8) {
+                        break;
+                    }
+                }
             }
         }
     }

@@ -16,7 +16,6 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @TeleOp(name="Normal")
 public class Teleop extends OpMode {
-    double clawPosition = 0.3;
     Drivetrain mecanum;
     DcMotorEx motorA, motorB;
     int currentPosition = 100;
@@ -71,63 +70,78 @@ public class Teleop extends OpMode {
         mecanum.drive();
         currentPosition = Math.min(Math.max(0, currentPosition), armSetpoint);
 
-        if (bumpeRight < 200) {
-            bumberRight += 1;
-        }
-        if (gamepad1.a) {
-            mecanum.rotateBy(90, 0.5);
-        }
+        //using dpad UP to jog arm
         if (gamepad1.dpad_up)
         {
             joggArmUp();
-        } else if(gamepad1.x)
+        } 
+        else 
+        {
+            motorA.setPower(0);
+            motorB.setPower(0);
+        }
+        //using dpad DOWN to jog arm
+        if (gamepad1.dpad_down)
+        {
+            joggArmDown();
+        }
+        else
+        {
+            motorA.setPower(0);
+            motorB.setPower(0);
+        }
+
+        //using a and y to rotate
+        if (gamepad1.a) {
+            mecanum.rotateBy(90, 0.5);
+        } 
+
+        else if (gamepad1.y) {
+            mecanum.rotateBy(-90, 0.5);
+        }
+        else{
+            mecanum.stop();
+        }
+
+
+        //using x and b to move arm
+        if(gamepad1.x)
         {
             armUp();
-        } else if(gamepad1.b)
+        } 
+        else if(gamepad1.b)
         {
             armDown();
-        } else if (gamepad1.left_bumper){
-
-
-            if (bumpeRight > 100){
-                clawOpen = true;
-            }
-            bumpeRight = 1;
-            claw1.setPosition(clawPosition);
-            claw2.setPosition(-clawPosition);
+        } 
+        else{
+            motorA.setPower(0);
+            motorB.setPower(0);
         }
+
+        //using gamepad bumpers to open and close claw
+        if (gamepad1.left_bumper){
+            clawOpen(claw1);
+            clawOpen(claw2);
+        }
+
         else if (gamepad1.right_bumper){
-            claw1.setPosition(-clawPosition);
-            claw2.setPosition(clawPosition);
+            closeClaw(claw1);
+            closeClaw(claw2);
         }
+
         else{
             claw1.setPosition(50);
             claw2.setPosition(50);
             wrist.setPosition(0);
         }
 
-        motorA.setPower(0);
-        motorA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        motorA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        motorA.setTargetPositionTolerance(3);
-
         motorA.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorA.setTargetPosition(currentPosition);
-
-        motorB.setPower(0);
-        motorB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        motorB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        motorB.setTargetPositionTolerance(3);
+        motorA.setPower(.75);
 
         motorB.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorB.setTargetPosition(currentPosition);
-
-        motorA.setPower(.75);
-
-
         motorB.setPower(.75);
-
-//        motorA.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
 
         double position = motorA.getCurrentPosition();
@@ -142,14 +156,6 @@ public class Teleop extends OpMode {
         telemetry.addData("Encoder PositionB", positionB);
         telemetry.addData("Desired PositionB", desiredPositionB);
         telemetry.addData("Gamepad1", gamepad1.left_trigger);
-
-        if (gamepad1.left_trigger > 0) {
-            clawOpen(claw1);
-            clawOpen(claw2);
-        } else if (gamepad1.right_trigger > 0) {
-            closeClaw(claw1);
-            closeClaw(claw2);
-        }
 
         telemetry.addData("C1", claw1.getPosition());
         telemetry.addData("C2", claw2.getPosition());

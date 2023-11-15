@@ -8,4 +8,6 @@ public class Constants {
     public static final int armIntake = 1;
     public static final double wristStowOrOutTake = .9;
     public static final double wristIntake = .2;
+    public static final double wristDropOff = .5;
+    public static final double clawPosition = 0.3;
 }
